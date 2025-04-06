@@ -1,9 +1,45 @@
+'use client'
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
+  const [alert, setAlert] = useState({ show: false, message: "", type: "" })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const response = await fetch("https://formsubmit.co/vikasmaury225@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setAlert({ show: true, message: "Your message has been sent successfully!", type: "success" })
+        setFormData({ name: "", email: "", subject: "", message: "" }) // Reset form
+      } else {
+        setAlert({ show: true, message: "Something went wrong. Please try again.", type: "error" })
+      }
+    } catch (error) {
+      setAlert({ show: true, message: "An error occurred. Please try again later.", type: "error" })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-16 md:py-24">
@@ -12,6 +48,16 @@ export default function ContactPage() {
           <p className="text-xl text-gray-300 mb-16 text-center">
             Have a question or want to collaborate? Get in touch with our team.
           </p>
+
+          {alert.show && (
+            <div
+              className={`mb-6 p-4 rounded-md text-center ${
+                alert.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+              }`}
+            >
+              {alert.message}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
@@ -94,18 +140,19 @@ export default function ContactPage() {
 
             <div>
               <h2 className="text-2xl font-bold mb-6">Send a Message</h2>
-              <form
-                action="https://formsubmit.co/vikasmaury225@gmail.com"
-                method="POST"
-                className="space-y-4"
-              >
-                <input type="hidden" name="_captcha" value="false" />
-                <input type="hidden" name="_next" value="/thank-you" />
-
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" placeholder="Your name" className="bg-gray-900 border-gray-700" required />
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Your name"
+                      className="bg-gray-900 border-gray-700"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -113,6 +160,8 @@ export default function ContactPage() {
                       id="email"
                       name="email"
                       type="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder="Your email"
                       className="bg-gray-900 border-gray-700"
                       required
@@ -120,13 +169,22 @@ export default function ContactPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subject">Subject</Label>
-                    <Input id="subject" name="subject" placeholder="Subject" className="bg-gray-900 border-gray-700" />
+                    <Input
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="Subject"
+                      className="bg-gray-900 border-gray-700"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea
                       id="message"
                       name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       placeholder="Your message"
                       className="bg-gray-900 border-gray-700"
                       rows={5}
@@ -138,18 +196,6 @@ export default function ContactPage() {
                   Send Message
                 </Button>
               </form>
-
-              {/* FormSubmit Logo */}
-              <div className="mt-6 text-center">
-                <a
-                  href="https://formsubmit.co"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-purple-400 text-sm"
-                >
-                  Powered by FormSubmit
-                </a>
-              </div>
             </div>
           </div>
         </div>
