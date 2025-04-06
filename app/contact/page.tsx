@@ -12,7 +12,7 @@ export default function ContactPage() {
     subject: "",
     message: "",
   })
-  const [alert, setAlert] = useState({ show: false, message: "", type: "" })
+  const [isSent, setIsSent] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -30,13 +30,16 @@ export default function ContactPage() {
       })
 
       if (response.ok) {
-        setAlert({ show: true, message: "Your message has been sent successfully!", type: "success" })
+        setIsSent(true)
         setFormData({ name: "", email: "", subject: "", message: "" }) // Reset form
-      } else {
-        setAlert({ show: true, message: "Something went wrong. Please try again.", type: "error" })
+        
+        // Reset button state after 5 seconds
+        setTimeout(() => {
+          setIsSent(false)
+        }, 5000)
       }
     } catch (error) {
-      setAlert({ show: true, message: "An error occurred. Please try again later.", type: "error" })
+      console.error("Failed to send message:", error)
     }
   }
 
@@ -48,16 +51,6 @@ export default function ContactPage() {
           <p className="text-xl text-gray-300 mb-16 text-center">
             Have a question or want to collaborate? Get in touch with our team.
           </p>
-
-          {alert.show && (
-            <div
-              className={`mb-6 p-4 rounded-md text-center ${
-                alert.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-              }`}
-            >
-              {alert.message}
-            </div>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
@@ -192,8 +185,16 @@ export default function ContactPage() {
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full bg-purple-700 hover:bg-purple-600">
-                  Send Message
+                <Button 
+                  type="submit" 
+                  className={`w-full ${
+                    isSent 
+                      ? "bg-green-600 hover:bg-green-700" 
+                      : "bg-purple-700 hover:bg-purple-600"
+                  }`}
+                  disabled={isSent}
+                >
+                  {isSent ? "Sent" : "Send Message"}
                 </Button>
               </form>
             </div>
