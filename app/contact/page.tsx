@@ -1,53 +1,91 @@
-'use client'
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+"use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 export default function ContactPage() {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
-  })
-  const [isSent, setIsSent] = useState(false)
+  });
+  const [isSent, setIsSent] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const response = await fetch("https://formsubmit.co/vikasmaury225@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
+      const response = await fetch(
+        "https://formsubmit.co/vikasmaury225@gmail.com",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+      console.log(response);
 
       if (response.ok) {
-        setIsSent(true)
-        setFormData({ name: "", email: "", subject: "", message: "" }) // Reset form
-        
+        setIsSent(true);
+        setFormData({ name: "", email: "", subject: "", message: "" }); // Reset form
+
+        toast({
+          title: "Message Sent Successfully!",
+          description: "Our team will contact you shortly.",
+          duration: 5000,
+          className:
+            "border-purple-500/20 bg-purple-950/90 text-white backdrop-blur-sm",
+          action: (
+            <div className="flex items-center">
+              <CheckCircle2 className="h-5 w-5 text-green-400 mr-2" />
+            </div>
+          ),
+        });
+
         // Reset button state after 5 seconds
         setTimeout(() => {
-          setIsSent(false)
-        }, 5000)
+          setIsSent(false);
+        }, 5000);
       }
     } catch (error) {
-      console.error("Failed to send message:", error)
+      console.error("Failed to send message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+        className:
+          "border-red-500/20 bg-red-950/90 text-white backdrop-blur-sm",
+        action: (
+          <div className="flex items-center">
+            <XCircle className="h-5 w-5 text-red-400 mr-2" />
+          </div>
+        ),
+      });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-center">Contact Us</h1>
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-center">
+            Contact Us
+          </h1>
           <p className="text-xl text-gray-300 mb-16 text-center">
             Have a question or want to collaborate? Get in touch with our team.
           </p>
@@ -125,7 +163,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-1">Office Hours</h3>
-                    <p className="text-gray-300">Monday - Saturday: 9am - 5pm IST</p>
+                    <p className="text-gray-300">
+                      Monday - Saturday: 9am - 5pm IST
+                    </p>
                   </div>
                 </div>
               </div>
@@ -185,11 +225,11 @@ export default function ContactPage() {
                     />
                   </div>
                 </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className={`w-full ${
-                    isSent 
-                      ? "bg-green-600 hover:bg-green-700" 
+                    isSent
+                      ? "bg-green-600 hover:bg-green-700"
                       : "bg-purple-700 hover:bg-purple-600"
                   }`}
                   disabled={isSent}
@@ -202,6 +242,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
